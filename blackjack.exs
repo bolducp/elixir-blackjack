@@ -33,19 +33,11 @@ defmodule Deck do
 
 end
 
-defmodule Hand do
-  def value(hand) do
-    map = hand |> Enum.group_by(fn(c) -> elem(c,0) == "Ace" end)
-    aces = map[true] || []
-    others = map[false] || []
-    others_val = others |> Enum.map(&Card.value/1) |> Enum.sum
-    value_with_aces(length(aces), others_val)
-  end
-
+defmodule Game do
   def take_turns(deck, hands, acc \\ [])
   def take_turns(deck, [], acc), do: {deck, acc |> Enum.reverse}
   def take_turns(deck=[card|rest], [hand|others], acc) do
-    if value(hand) > 16 do
+    if Hand.value(hand) > 16 do
       take_turns(deck, others, [hand|acc])
     else
       take_turns(rest, [[card|hand]|others], acc)
@@ -54,7 +46,7 @@ defmodule Hand do
 
   def winners(hands) do
     try do
-      vals = hands |> Enum.map(&value/1)
+      vals = hands |> Enum.map(&Hand.value/1)
       best = vals
              |> Enum.reject(&(&1 > 21))
              |> Enum.max
@@ -65,6 +57,16 @@ defmodule Hand do
     rescue
       Enum.EmptyError -> []
     end
+  end
+end
+
+defmodule Hand do
+  def value(hand) do
+    map = hand |> Enum.group_by(fn(c) -> elem(c,0) == "Ace" end)
+    aces = map[true] || []
+    others = map[false] || []
+    others_val = others |> Enum.map(&Card.value/1) |> Enum.sum
+    value_with_aces(length(aces), others_val)
   end
 
   defp value_with_aces(0, others_val), do: others_val
