@@ -33,6 +33,33 @@ defmodule Deck do
 
 end
 
+defmodule Game do
+  def take_turns(deck, hands, acc \\ [])
+  def take_turns(deck, [], acc), do: {deck, acc |> Enum.reverse}
+  def take_turns(deck=[card|rest], [hand|others], acc) do
+    if Hand.value(hand) > 16 do
+      take_turns(deck, others, [hand|acc])
+    else
+      take_turns(rest, [[card|hand]|others], acc)
+    end
+  end
+
+  def winners(hands) do
+    try do
+      vals = hands |> Enum.map(&Hand.value/1)
+      best = vals
+             |> Enum.reject(&(&1 > 21))
+             |> Enum.max
+      vals
+      |> Enum.with_index
+      |> Enum.filter(fn(t) -> elem(t,0) == best end)
+      |> Enum.map(fn(t) -> elem(t,1) end)
+    rescue
+      Enum.EmptyError -> []
+    end
+  end
+end
+
 defmodule Hand do
   def value(hand) do
     map = hand |> Enum.group_by(fn(c) -> elem(c,0) == "Ace" end)
@@ -40,21 +67,6 @@ defmodule Hand do
     others = map[false] || []
     others_val = others |> Enum.map(&Card.value/1) |> Enum.sum
     value_with_aces(length(aces), others_val)
-  end
-
-  def take_turns(deck, hands, acc \\ [])
-  def take_turns(deck, [], acc), do: {deck, acc |> Enum.reverse}
-  def take_turns(deck=[card|rest], [hand|others], acc) do
-    if value(hand) > 16 do
-      take_turns(deck, others, [hand|acc])
-    else
-      take_turns(rest, [[card|hand]|others], acc)
-    end
-  end
-
-  def winner(hands) do
-    # TODO: account for ALL busting
-    hands |> Enum.map(&value/1) |> Enum.reject(&(&1 > 21)) |> Enum.max
   end
 
   defp value_with_aces(0, others_val), do: others_val
@@ -84,10 +96,7 @@ defmodule Card do
   }
 
   def ace_value_with(value_of_rest) do
-    cond do
-      value_of_rest > 11 -> 1
-      true               -> 11
-    end
+    if value_of_rest > 11, do: 1, else: 11
   end
   def from_rank_and_suit(rank, suit) do
     {rank, suit}
