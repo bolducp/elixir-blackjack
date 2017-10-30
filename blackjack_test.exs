@@ -58,7 +58,7 @@ defmodule BlackjackTest do
     refute Enum.any?(hand1, fn(card) -> Enum.member?(hand2, card) end)
     refute Enum.any?(hand2, fn(card) -> Enum.member?(hand3, card) end)
     refute Enum.any?(hand3, fn(card) -> Enum.member?(hand1, card) end)
-end
+  end
 
   test "determines single winner" do
     hands = [
