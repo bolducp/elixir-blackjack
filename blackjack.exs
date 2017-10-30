@@ -52,9 +52,26 @@ defmodule Hand do
     end
   end
 
-  def winner(hands) do
-    # TODO: account for ALL busting
-    hands |> Enum.map(&value/1) |> Enum.reject(&(&1 > 21)) |> Enum.max
+  # seems like there ought to be a way to "railway" this...
+  def winners([]), do: []
+  def winners(hands) do
+    vals = hands |> Enum.map(&value/1)
+    ok_vals = vals |> Enum.reject(&(&1 > 21))
+    best = best_of(ok_vals)
+    vals |> indices_of(best)
+  end
+
+  defp best_of([]), do: []
+  defp best_of(vals) do
+    vals |> Enum.reject(&(&1 > 21)) |> Enum.max
+  end
+
+  defp indices_of([], _best), do: []
+  defp indices_of(vals, best) do
+    vals
+    |> Enum.with_index
+    |> Enum.filter(fn(t) -> elem(t,0) == best end)
+    |> Enum.map(fn(t) -> elem(t,1) end)
   end
 
   defp value_with_aces(0, others_val), do: others_val
