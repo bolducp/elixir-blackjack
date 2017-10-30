@@ -96,10 +96,7 @@ defmodule Card do
   }
 
   def ace_value_with(value_of_rest) do
-    cond do
-      value_of_rest > 11 -> 1
-      true               -> 11
-    end
+    if value_of_rest > 11, do: 1, else: 11
   end
   def from_rank_and_suit(rank, suit) do
     {rank, suit}
