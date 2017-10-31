@@ -45,7 +45,7 @@ defmodule BlackjackTest do
     num_hands = 3
     {deck, hands} = Deck.deal_hands(deck, num_hands)
     Enum.each(hands, fn(h) -> refute Hand.value(h) > 15 end)
-    {_deck, hands} = Hand.take_turns(deck, hands)
+    {_deck, hands} = Game.take_turns(deck, hands)
     Enum.each(hands, fn(h) -> assert Hand.value(h) > 15 end)
   end
 
@@ -53,7 +53,7 @@ defmodule BlackjackTest do
     deck = Deck.new
     num_hands = 3
     {deck, hands} = Deck.deal_hands(deck, num_hands)
-    {_deck, hands} = Hand.take_turns(deck, hands)
+    {_deck, hands} = Game.take_turns(deck, hands)
     [hand1,hand2,hand3] = hands
     refute Enum.any?(hand1, fn(card) -> Enum.member?(hand2, card) end)
     refute Enum.any?(hand2, fn(card) -> Enum.member?(hand3, card) end)
@@ -66,7 +66,7 @@ defmodule BlackjackTest do
       [{"10", "Clubs"}, {"9", "Clubs"}, {"5", "Clubs"}, {"2", "Clubs"}],   # 26
       [{"Jack", "Clubs"}, {"6", "Clubs"}, {"3", "Clubs"}]  # 19
     ]
-    assert Hand.winners(hands) == [0]
+    assert Game.winners(hands) == [0]
   end
 
   test "declares winners if tie" do
@@ -75,7 +75,7 @@ defmodule BlackjackTest do
       [{"10", "Clubs"}, {"9", "Clubs"}, {"5", "Clubs"}, {"2", "Clubs"}],   # 26
       [{"Jack", "Clubs"}, {"6", "Clubs"}, {"3", "Clubs"}]  # 19
     ]
-    assert Hand.winners(hands) == [0,2]
+    assert Game.winners(hands) == [0,2]
   end
 
   test "declares no winner if all bust" do
@@ -84,12 +84,12 @@ defmodule BlackjackTest do
       [{"10", "Diamonds"}, {"9", "Diamonds"}, {"5", "Diamonds"}, {"2", "Diamonds"}],
       [{"10", "Hearts"}, {"9", "Hearts"}, {"5", "Hearts"}, {"2", "Hearts"}],
     ]
-    assert Hand.winners(hands) == []
+    assert Game.winners(hands) == []
   end
 
   test "declares no winner if no hands" do
     hands = []
-    assert Hand.winners(hands) == []
+    assert Game.winners(hands) == []
   end
 
   defp take_back(hands, which, acc) do
